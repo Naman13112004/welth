@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div>
+    <div className="mt-40">
       Welcome to Welth
     </div>
   );
