@@ -25,18 +25,18 @@ const Header = () => {
       
         <div className="flex items-center space-x-4">
           <SignedIn>
-            <Link href="/dashboard" className="text-gray-600 hover:text-blue-600 flex items-center gap-2">
-              <Button variant="outline">
+            <Button asChild variant="outline"> 
+              <Link href="/dashboard" className="text-gray-600 hover:text-blue-600 flex items-center gap-2">
                 <LayoutDashboard size={18} />
                 <span className="hidden md:inline">Dashboard</span>
-              </Button>
-            </Link>
-            <Link href="/transaction/create">
-              <Button className="flex items-center gap-2">
+              </Link>
+            </Button>
+            <Button asChild className="flex items-center gap-2">  
+              <Link href="/transaction/create">
                 <PenBox size={18} />
                 <span className="hidden md:inline">Add Transaction</span>
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </SignedIn>
 
           <SignedOut>
