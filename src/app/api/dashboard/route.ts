@@ -5,11 +5,11 @@ import { revalidatePath } from "next/cache";
 import { AccountType } from "@/generated/prisma";
 
 
-const serializeTransaction = (obj: any) => {
-    const serialized = {...obj};
+const serializeAccount = (obj: any) => {
+    const serialized: any = {...obj};
 
-    if(obj.balance) {
-        serialized.balance = obj.balance.toNumber();
+    if(obj !== null || obj !== undefined && "balance" in obj) {
+        serialized.balance = Number((obj as any).balance);
     }
 
     return serialized;
@@ -31,15 +31,22 @@ export async function POST(req: Request) {
         }
 
         const data = await req.formData();
-        const balance = data.get("balance")!.toString();
-        const isDefault = data.get("isDefault")!.toString() === "true";
-        const name = data.get("name")!.toString();
-        const type = data.get("type")!.toString();
+        const nameRaw = data.get("name");
+        const typeRaw = data.get("type");
+        const balanceRaw = data.get("balance");
+        const isDefaultRaw = data.get("isDefault");
+
+        if (typeof nameRaw !== "string" || typeof typeRaw !== "string" || typeof balanceRaw !== "string") {
+          return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+        const name = nameRaw.trim();
+        const type = typeRaw as AccountType;
+        const isDefault = isDefaultRaw?.toString() === "true";
 
         // Convert balance to float before saving
-        const balanceFloat = parseFloat(balance);
-        if(isNaN(balanceFloat)) {
-            return NextResponse.json({ error: "Invalid balance amount" }, { status: 400 });
+        const balanceFloat = Number(balanceRaw);
+        if (!Number.isFinite(balanceFloat) || balanceFloat < 0) {
+          return NextResponse.json({ error: "Invalid balance amount" }, { status: 400 });
         }
 
         // Check if this is the user's first account
@@ -67,7 +74,7 @@ export async function POST(req: Request) {
             },
         });
 
-        const serializedAccount = serializeTransaction(account);
+        const serializedAccount = serializeAccount(account);
 
         revalidatePath("/dashboard");
         return NextResponse.json({ success: true, data: serializedAccount }, { status: 201 });
