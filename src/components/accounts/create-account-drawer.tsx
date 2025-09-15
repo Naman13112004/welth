@@ -1,31 +1,55 @@
 "use client";
 
-import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { accountSchema } from "@/app/lib/zod-schema";
-import { Input } from "./ui/input";
+import { ReactNode, useEffect, useState } from "react";
+
 import { AccountType } from "@/generated/prisma";
+import { accountSchema } from "@/app/lib/zod-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { 
-    Drawer, 
-    DrawerClose, 
-    DrawerContent, 
-    DrawerHeader, 
-    DrawerTitle, 
-    DrawerTrigger 
-} from "./ui/drawer";
+  Drawer, 
+  DrawerClose, 
+  DrawerContent, 
+  DrawerHeader, 
+  DrawerTitle, 
+  DrawerTrigger 
+} from "@/components/ui/drawer";
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from "./ui/select";
-import { Switch } from "./ui/switch";
-import { Button } from "./ui/button";
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+
+import useFetch from "@/hooks/use-fetch";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const CreateAccountDrawer = ({ children }: {children: ReactNode}) => {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  async function createAccount(formData: FormData) {
+    const res = await fetch("/api/dashboard", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to create account");
+    }
+
+    router.refresh();
+
+    return res.json();
+  }
+
 
   const { 
     register, 
@@ -44,9 +68,33 @@ const CreateAccountDrawer = ({ children }: {children: ReactNode}) => {
     },
   });
 
+  const {
+    data: newAccount,
+    error,
+    fn: createAccountFn,
+    loading: createAccountLoading,
+  } = useFetch(createAccount);
+
+  useEffect(() => {
+    if(newAccount && !createAccountLoading) {
+      toast.success("Account created successfully");
+      reset();
+      setOpen(false);
+    }
+  }, [createAccountLoading, newAccount]);
+
+  useEffect(() => {
+    if(error) {
+      toast.error((error as Error).message || "Failed to create account");
+    }
+  }, [error]);
+
   const onSubmit = async (data: any) => {
-    console.log(data);
-    reset();
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+    await createAccountFn(formData);
   }
 
   return (
@@ -135,8 +183,15 @@ const CreateAccountDrawer = ({ children }: {children: ReactNode}) => {
                       Cancel
                     </Button>
                   </DrawerClose>
-                  <Button type="submit" className="flex-1">
-                    Create Account
+                  <Button type="submit" className="flex-1" disabled={createAccountLoading}>
+                    {createAccountLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
                   </Button>
                 </div>
               </form>
