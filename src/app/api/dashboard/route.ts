@@ -8,8 +8,12 @@ import { AccountType } from "@/generated/prisma";
 const serializeAccount = (obj: any) => {
     const serialized: any = {...obj};
 
-    if(obj !== null || obj !== undefined && "balance" in obj) {
+    if(obj !== null && obj !== undefined && "balance" in obj) {
         serialized.balance = Number((obj as any).balance);
+    }
+
+    if(obj !== null && obj !== undefined && "amount" in obj) {
+        serialized.amount = Number((obj as any).amount);
     }
 
     return serialized;
@@ -41,7 +45,8 @@ export async function POST(req: Request) {
         }
         const name = nameRaw.trim();
         const type = typeRaw as AccountType;
-        const isDefault = isDefaultRaw?.toString() === "true";
+        const isDefault = 
+            typeof isDefaultRaw === "string" && isDefaultRaw.toLowerCase() === "true";
 
         // Convert balance to float before saving
         const balanceFloat = Number(balanceRaw);
@@ -76,10 +81,45 @@ export async function POST(req: Request) {
 
         const serializedAccount = serializeAccount(account);
 
-        revalidatePath("/dashboard");
         return NextResponse.json({ success: true, data: serializedAccount }, { status: 201 });
 
     } catch(error) {
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}
+
+export async function GET() {
+    try {
+        const { userId } = await auth();
+        if(!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId },
+        });
+
+        if(!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        const accounts = db.account.findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: "desc" },
+            include: {
+                _count: {
+                    select: {
+                        transactions: true,
+                    },
+                },
+            },
+        });
+
+        const serializedAccount = (await accounts).map(serializeAccount);
+
+        return NextResponse.json({ success: true, data: serializedAccount }, { status: 201 });        
+
+    } catch (error) {
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
