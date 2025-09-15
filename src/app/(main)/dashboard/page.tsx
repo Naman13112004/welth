@@ -39,8 +39,8 @@ const DashboardPage = async () => {
             </Card>
           </CreateAccountDrawer>
 
-          {accounts.length > 0 && 
-            accounts?.map((account: Account) => {
+          {accounts?.length > 0 && 
+            accounts.map((account: Account) => {
               return <AccountCard key={account.id} account={account} />
             })
           }

@@ -16,11 +16,13 @@ const AccountCard = ({ account }: {account: Account}) => {
 
   return (
     <Card className="hover:shadow-md transition-shadow group relative">
-      <Link href={`/account/${id}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium capitalize">{account.name}</CardTitle>
+          <Link href={`/account/${id}`}>
+            <CardTitle className="text-sm font-medium capitalize">{account.name}</CardTitle>
+          </Link>
           <Switch checked={isDefault} />
         </CardHeader>
+      <Link href={`/account/${id}`}>
         <CardContent className="pb-4">
           <div className="text-2xl font-bold">
             Rs. {Number(balance).toFixed(2)}
