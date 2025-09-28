@@ -1,23 +1,8 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { AccountType } from "@/generated/prisma";
-
-
-const serializeAccount = (obj: any) => {
-    const serialized: any = {...obj};
-
-    if(obj !== null && obj !== undefined && "balance" in obj) {
-        serialized.balance = Number((obj as any).balance);
-    }
-
-    if(obj !== null && obj !== undefined && "amount" in obj) {
-        serialized.amount = Number((obj as any).amount);
-    }
-
-    return serialized;
-}
+import { serializeAccount } from "@/lib/utils";
 
 export async function POST(req: Request) {
     try {
@@ -121,5 +106,45 @@ export async function GET() {
 
     } catch (error) {
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}
+
+export async function PUT(req: Request) {
+    try {
+        const { userId } = await auth();
+        if(!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId },
+        });
+
+        if(!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        const { accountId } = await req.json();  
+
+        if (!accountId) {
+        return NextResponse.json({ error: "Account ID required" }, { status: 400 });
+        }
+
+        // Remove all accounts from default before setting anyone to default 
+        await db.account.updateMany({
+            where: { userId: user.id, isDefault: true },
+            data: { isDefault: false },
+        });
+
+        // Set the account to default
+        const account = await db.account.update({
+            where: { id: accountId, userId: user.id, },
+            data: { isDefault: true, }
+        });
+
+        return NextResponse.json({ success: true, data: serializeAccount(account) }, { status: 201 });  
+
+    } catch (error) {
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });        
     }
 }

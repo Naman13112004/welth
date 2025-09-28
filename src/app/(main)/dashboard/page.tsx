@@ -9,7 +9,7 @@ import type { Account } from "@/generated/prisma";
 const DashboardPage = async () => {
   const authHeaders = await headers();
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/dashboard`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/accounts`, {
     method: "GET",
     headers: {
       cookie: (authHeaders).get("cookie") ?? "",

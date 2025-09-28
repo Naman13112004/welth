@@ -36,7 +36,7 @@ const CreateAccountDrawer = ({ children }: {children: ReactNode}) => {
   const router = useRouter();
 
   async function createAccount(formData: FormData) {
-    const res = await fetch("/api/dashboard", {
+    const res = await fetch("/api/accounts", {
       method: "POST",
       body: formData,
     });
