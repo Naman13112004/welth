@@ -5,44 +5,43 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Transaction } from "@/generated/prisma";
 import { categoryColors } from "../../../data/categories";
-import { 
-    ChevronDown, 
-    ChevronUp, 
-    Clock, 
-    MoreHorizontal, 
-    RefreshCw, 
-    Search, 
-    Trash, 
-    X 
+import {
+    ChevronDown,
+    ChevronUp,
+    Clock,
+    MoreHorizontal,
+    RefreshCw,
+    Search,
+    Trash,
+    X
 } from "lucide-react";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -78,7 +77,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
             body: JSON.stringify({ transactionIds }),
         });
 
-        if(!res.ok) {
+        if (!res.ok) {
             const errorData = await res.json();
             throw new Error(errorData.error || "Failed to delete accounts");
         }
@@ -99,23 +98,23 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
         let result = [...transactions];
 
         // Apply search filter
-        if(searchTerm) {
+        if (searchTerm) {
             const searchLower = searchTerm.toLowerCase();
-            result = result.filter((transaction) => 
+            result = result.filter((transaction) =>
                 transaction.description?.toLowerCase().includes(searchLower)
             );
         }
 
         // Apply recurring filter
-        if(recurringFilter) {
+        if (recurringFilter) {
             result = result.filter((transaction) => {
-                if(recurringFilter === "recurring") return transaction.isRecurring;
+                if (recurringFilter === "recurring") return transaction.isRecurring;
                 return !transaction.isRecurring;
             });
         }
 
         // Apply type filter
-        if(typeFilter) {
+        if (typeFilter) {
             result = result.filter((transaction) => transaction.type === typeFilter);
         }
 
@@ -169,7 +168,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
     };
 
     const handleBulkDelete = async () => {
-        if(
+        if (
             !window.confirm(
                 `Are you sure you want to delete ${selectedIds.length} transactions?`
             )
@@ -181,8 +180,9 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
     }
 
     useEffect(() => {
-        if(deleted && !deleteLoading) {
-            toast.error("Transactions deleted successfully");
+        if (deleted && !deleteLoading) {
+            toast.success("Transactions deleted successfully");
+            setSelectedIds([]);
         }
     }, [deleted, deleteLoading]);
 
@@ -203,11 +203,11 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
             <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
+                    <Input
                         placeholder="Search Transactions..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-8" 
+                        className="pl-8"
                     />
                 </div>
 
@@ -234,9 +234,9 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
 
                     {selectedIds.length > 0 && (
                         <div className="flex items-center gap-2">
-                            <Button 
-                                variant="destructive" 
-                                size="sm" 
+                            <Button
+                                variant="destructive"
+                                size="sm"
                                 onClick={handleBulkDelete}
                             >
                                 <Trash className="h-4 w-4 mr-1" />
@@ -264,15 +264,15 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-[50px]">
-                                <Checkbox 
+                                <Checkbox
                                     onCheckedChange={handleSelectAll}
-                                    checked = {
+                                    checked={
                                         selectedIds.length === filteredAndSortedTransactions.length &&
                                         filteredAndSortedTransactions.length > 0
                                     }
                                 />
                             </TableHead>
-                            <TableHead 
+                            <TableHead
                                 className="cursor-pointer"
                                 onClick={() => handleSort("date")}
                             >
@@ -288,7 +288,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                                 </div>
                             </TableHead>
                             <TableHead>Description</TableHead>
-                            <TableHead 
+                            <TableHead
                                 className="cursor-pointer"
                                 onClick={() => handleSort("category")}
                             >
@@ -303,7 +303,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                                     )}
                                 </div>
                             </TableHead>
-                            <TableHead 
+                            <TableHead
                                 className="cursor-pointer"
                                 onClick={() => handleSort("amount")}
                             >
@@ -333,8 +333,8 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                             filteredAndSortedTransactions.map((transaction) => (
                                 <TableRow key={transaction.id}>
                                     <TableCell>
-                                        <Checkbox 
-                                            onCheckedChange={() => handleSelect(transaction.id)} 
+                                        <Checkbox
+                                            onCheckedChange={() => handleSelect(transaction.id)}
                                             checked={selectedIds.includes(transaction.id)}
                                         />
                                     </TableCell>
@@ -350,7 +350,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                                             {transaction.category}
                                         </span>
                                     </TableCell>
-                                    <TableCell 
+                                    <TableCell
                                         className="text-right font-medium"
                                         style={{
                                             color: transaction.type === "EXPENSE" ? "red" : "green"
@@ -363,8 +363,8 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                                         {transaction.isRecurring ? (
                                             <Tooltip>
                                                 <TooltipTrigger>
-                                                    <Badge 
-                                                        variant="outline" 
+                                                    <Badge
+                                                        variant="outline"
                                                         className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200"
                                                     >
                                                         <RefreshCw className="h-3 w-3" />
@@ -412,7 +412,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem 
+                                                <DropdownMenuItem
                                                     className="text-destructive cursor-pointer"
                                                     onClick={() => deleteFn([transaction.id])}
                                                 >
