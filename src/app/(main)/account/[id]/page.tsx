@@ -31,7 +31,7 @@ const AccountPage = async ({ params }: AccountPageProps) => {
         },
     });
 
-    if (!accountData) {
+    if (!accountData.ok) {
         notFound();
     }
 
@@ -68,7 +68,7 @@ const AccountPage = async ({ params }: AccountPageProps) => {
 
             {/* Transaction Table */}
             <Suspense
-                fallback={<BarLoader className="mt`-4" width={"100%"} color="#9333ea" />}
+                fallback={<BarLoader className="mt-4" width={"100%"} color="#9333ea" />}
             >
                 <TransactionTable transactions={transactions} />
             </Suspense>

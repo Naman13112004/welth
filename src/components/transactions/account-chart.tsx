@@ -55,25 +55,31 @@ const AccountChart = ({ transactions }: { transactions: Transaction[] }) => {
         );
 
         const groupedData = filteredTransactions.reduce((acc, transaction) => {
-            const date = format(new Date(transaction.date), "MMM dd");
+            const txDate = startOfDay(new Date(transaction.date));
+            const key = txDate.getTime().toString();
 
-            if (!acc[date]) {
-                acc[date] = { date, income: 0, expense: 0 };
+            if (!acc[key]) {
+                acc[key] = {
+                    date: format(txDate, "MMM dd"),
+                    sortKey: txDate.getTime(),
+                    income: 0,
+                    expense: 0,
+                };
             }
 
             if (transaction.type === "INCOME") {
-                acc[date].income += Number(transaction.amount);
+                acc[key].income += Number(transaction.amount);
             } else {
-                acc[date].expense += Number(transaction.amount);
+                acc[key].expense += Number(transaction.amount);
             }
 
             return acc;
-        }, {} as Record<string, { date: string, income: number, expense: number }>);
+        }, {} as Record<string, { date: string; sortKey: number; income: number; expense: number }>);
 
         // Convert to array and sort by date
-        return Object.values(groupedData).sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
+        return Object.values(groupedData)
+            .sort((a, b) => a.sortKey - b.sortKey)
+            .map(({ sortKey, ...rest }) => rest);
     }, [transactions, dateRange]);
 
     const totals = useMemo(() => {
