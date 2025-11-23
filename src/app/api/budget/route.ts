@@ -44,8 +44,8 @@ export async function GET(req: Request) {
             where: {
                 userId: user.id,
                 createdAt: {
-                    gte: new Date(2025, 8, 1),
-                    lte: new Date(2025, 8, 31),
+                    gte: startOfMonth,
+                    lte: endOfMonth,
                 },
                 type: "EXPENSE",
                 accountId: accountId,
@@ -93,7 +93,7 @@ export async function PUT(req: Request) {
 
         return NextResponse.json(
             { budget: { ...budget, amount: budget.amount.toNumber(), success: true } }, 
-            { status: 201 }
+            { status: 200 }
         );
     } catch (error) {
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -30,9 +30,11 @@ const BudgetProgress = ({ initialBudget, currentExpenses }: BudgetProgressProps)
     const [newBudget, setNewBudget] = useState(
         initialBudget?.amount?.toString() || ""
     );
-    const percentUsed = initialBudget
-        ? (currentExpenses / Number(initialBudget.amount)) * 100
-        : 0;
+    const rawBudgetAmount = initialBudget ? Number(initialBudget.amount) : 0;
+    const percentUsed =
+        rawBudgetAmount > 0
+            ? Math.min(100, Math.max(0, (currentExpenses / rawBudgetAmount) * 100))
+            : 0;
 
     async function updateBudget(amount: number) {
         const res = await fetch("/api/budget", {
