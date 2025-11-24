@@ -54,8 +54,11 @@ export const checkBudgetAlerts = inngest.createFunction(
             });
 
             const totalExpenses = (await expenses)._sum.amount?.toNumber() || 0;
-            const budgetAmount = Number(budget.amount);
-            const percentageUsed = (totalExpenses / budgetAmount) * 100;
+            const rawBudgetAmount = budget ? Number(budget.amount) : 0;
+            const percentageUsed =
+                rawBudgetAmount > 0
+                    ? Math.min(100, Math.max(0, (totalExpenses / rawBudgetAmount) * 100))
+                    : 0;
 
             if(
                 percentageUsed >= 80 &&
@@ -64,7 +67,7 @@ export const checkBudgetAlerts = inngest.createFunction(
                 )
             ) {
                 // Send Email
-                await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -76,7 +79,7 @@ export const checkBudgetAlerts = inngest.createFunction(
                             userName: budget.user.name,
                             type: "budget-alert",
                             data: {
-                                budgetAmount: Number(budgetAmount).toFixed(1),
+                                budgetAmount: Number(rawBudgetAmount).toFixed(1),
                                 totalExpenses: Number(totalExpenses).toFixed(1),
                                 percentageUsed,
                             },
@@ -84,7 +87,12 @@ export const checkBudgetAlerts = inngest.createFunction(
                     }),
                 });
 
-                // Update Last Alert Sent
+                // Check if email was sent successfully
+                if(!response.ok) {
+                    throw new Error(`Failed to send budget alert email: ${response.status} ${response.statusText}`);
+                }
+
+                // Update Last Alert Sent after successful sending of email
                 await db.budget.update({
                     where: { id: budget.id, },
                     data: { lastAlertSent: new Date(), },
