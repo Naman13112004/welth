@@ -77,24 +77,18 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
 
     const filterredCategories = categories.filter((category) => category.type === type);
 
-    async function createTransaction() {
+    async function createTransaction(formData: z.infer<typeof transactionSchema>) {
         const res = await fetch("/api/transactions", {
             method: "POST",
             body: JSON.stringify({
-                accountId: accountId,
-                amount: amount,
-                category: category,
-                description: description,
-                type: type,
-                date: date,
-                isRecurring: isRecurring,
+                ...formData,
                 recurringInterval: isRecurring ? recurringInterval : null,
             }),
         });
 
         if (!res.ok) {
             const errorData = await res.json();
-            throw new Error(errorData.error || "Failed to delete accounts");
+            throw new Error(errorData.error || "Failed to create transaction");
         }
 
         router.refresh();
@@ -175,7 +169,7 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
                         <SelectContent>
                             {accounts.map((account) => (
                                 <SelectItem key={account.id} value={account.id}>
-                                    {account.name} (${Number(account.balance).toFixed(2)})
+                                    {account.name} (Rs. {Number(account.balance).toFixed(2)})
                                 </SelectItem>
                             ))}
                             <CreateAccountDrawer>
@@ -258,7 +252,7 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
             <div className="flex items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">
                     <label
-                        htmlFor="isDefault"
+                        htmlFor="isRecurring"
                         className="text-sm font-medium cursor-pointer"
                     >
                         Recurring Transaction
@@ -269,7 +263,7 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
                     </p>
                 </div>
                 <Switch
-                    id="isDefault"
+                    id="isRecurring"
                     onCheckedChange={(checked) => setValue("isRecurring", checked)}
                     checked={watch("isRecurring")}
                 />
@@ -283,7 +277,7 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
                         defaultValue={getValues("recurringInterval")}
                     >
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Category" />
+                            <SelectValue placeholder="Select Interval" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="DAILY">Daily</SelectItem>

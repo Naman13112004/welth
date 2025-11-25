@@ -11,7 +11,7 @@ export const transactionSchema = z.object({
     type: z.enum(["EXPENSE", "INCOME"]),
     amount: z.string().min(1, "Amount is required"),
     description: z.string().optional(),
-    date: z.date().min(new Date(), "Date is required"),
+    date: z.date({ error: "Date is required" }),
     accountId: z.string().min(1, "Account ID is required"),
     category: z.string().min(1, "Category is required"),
     isRecurring: z.boolean().default(false),
