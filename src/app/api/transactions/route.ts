@@ -2,6 +2,7 @@ import { db } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { serializeAccount } from "@/lib/utils";
+import aj from "@/lib/arcjet";
 
 export async function GET(req: Request) {
     try {
@@ -126,6 +127,28 @@ export async function POST(req: Request) {
 
         if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        // Arcjet for rate limiting
+        const decision = await aj.protect(req, {
+            requested: 1,
+        });
+
+        if (decision.isDenied()) {
+            if (decision.reason.isRateLimit()) {
+                const { remaining, reset } = decision.reason;
+                return NextResponse.json(
+                    {
+                        error: "Rate limit exceeded! Try after " + Math.round(reset / 60) + " minutes",
+                        details: {
+                            remaining,
+                            reset,
+                        },
+                    },
+                    { status: 429 }
+                );
+            }
+            return NextResponse.json({ error: "Internal server error" }, { status: 500 });
         }
 
         const user = await db.user.findUnique({
