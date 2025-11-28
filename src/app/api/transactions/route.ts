@@ -160,9 +160,7 @@ export async function POST(req: Request) {
         }
 
         const data = await req.json();
-        const { accountId, amount, type, rawDate, isRecurring, recurringInterval } = data;
-
-        const date = new Date(rawDate);
+        const { accountId, amount, type, date, isRecurring, recurringInterval } = data;
 
         const account = await db.account.findUnique({
             where: { id: accountId, userId: user.id },
@@ -202,10 +200,10 @@ export async function POST(req: Request) {
     }
 }
 
-function calculateNextRecurringDate(startDate: Date, interval: string) {
+function calculateNextRecurringDate(startDate: Date, recurringInterval: string) {
     const date = new Date(startDate);
 
-    switch (interval) {
+    switch (recurringInterval) {
         case "DAILY":
             date.setDate(date.getDate() + 1);
             break;
