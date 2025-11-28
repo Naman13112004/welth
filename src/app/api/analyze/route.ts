@@ -6,11 +6,13 @@ export async function POST(req: Request) {
         const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         const formData = await req.formData();
-        const file = formData.get("image") as File;
+        const rawFile = formData.get("image");
 
-        if (!file) {
+        if (!(rawFile instanceof Blob)) {
             return NextResponse.json({ error: "Image not found" }, { status: 400 });
         }
+
+        const file = rawFile as File;
 
         const buffer = await file.arrayBuffer();
         const base64 = Buffer.from(buffer).toString("base64");
