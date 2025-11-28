@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ScannedData } from "./transaction-form";
+import type { ScannedData } from "./transaction-form";
 import { useRouter } from "next/navigation";
 import useFetch from "@/hooks/use-fetch";
 import { Button } from "../ui/button";

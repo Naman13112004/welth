@@ -44,7 +44,7 @@ export async function POST(req: Request) {
                         data: base64,
                     }
                 },
-                prompt,
+                { text: prompt },
             ]
         });
 
@@ -70,7 +70,6 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid JSON response" }, { status: 400 });
         }
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
