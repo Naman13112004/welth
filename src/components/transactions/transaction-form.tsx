@@ -29,6 +29,15 @@ import { Switch } from "../ui/switch";
 import z from "zod";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import ReceiptScanner from "./receipt-scanner";
+
+export interface ScannedData {
+    amount: number;
+    date: Date;
+    description: string;
+    category: string;
+    merchantName: string;
+}
 
 interface AddTransactionFormProps {
     accounts: Account[];
@@ -69,10 +78,6 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
     const type = watch("type");
     const isRecurring = watch("isRecurring");
     const date = watch("date");
-    const accountId = watch("accountId");
-    const category = watch("category");
-    const amount = watch("amount");
-    const description = watch("description");
     const recurringInterval = watch("recurringInterval");
 
     const filterredCategories = categories.filter((category) => category.type === type);
@@ -118,9 +123,23 @@ const AddTransactionForm = ({ accounts, categories }: AddTransactionFormProps) =
         }
     }, [transactionResult, transactionLoading]);
 
+    const handleScanComplete = (scannedData: ScannedData) => {
+        if (scannedData) {
+            setValue("amount", scannedData.amount.toString());
+            setValue("date", new Date(scannedData.date));
+            if (scannedData.description) {
+                setValue("description", scannedData.description);
+            }
+            if (scannedData.category) {
+                setValue("category", scannedData.category);
+            }
+        }
+    }
+
     return (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {/* AI Receipt Scanner */}
+            <ReceiptScanner onScanComplete={handleScanComplete} />
 
             <div className="space-y-2">
                 <label className="text-sm font-medium">Type</label>
