@@ -224,4 +224,4 @@ function calculateNextRecurringDate(startDate: Date, recurringInterval: string) 
 const serializeAmount = (obj: any) => ({
     ...obj,
     amount: Number(obj.amount),
-})
+});
