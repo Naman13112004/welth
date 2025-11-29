@@ -24,11 +24,12 @@ export async function POST(req: Request) {
             data,
         });
     } catch (error) {
+        console.log(error);
         return NextResponse.json(
-            { 
+            {
                 success: false,
                 error,
-            }, 
+            },
             { status: 500 }
         );
     }
