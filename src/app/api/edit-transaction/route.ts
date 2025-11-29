@@ -86,6 +86,18 @@ export async function PUT(req: Request) {
 
         const netBalanceChange = newBalanceChange - oldBalanceChange;
 
+        // Verify new account belongs to user
+        const newAccount = await db.account.findUnique({
+            where: {
+                id: accountId,
+                userId: user.id,
+            },
+        });
+
+        if (!newAccount) {
+            return NextResponse.json({ error: "Account not found" }, { status: 404 });
+        }
+
         // Update transaction and account balance in a transaction
         const transaction = await db.$transaction(async (tx) => {
             const updated = await tx.transaction.update({
@@ -126,10 +138,9 @@ export async function PUT(req: Request) {
 
         return NextResponse.json(
             { transaction: serializeAmount(transaction), success: true },
-            { status: 201 }
+            { status: 200 }
         );
     } catch (error) {
-        console.log(error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

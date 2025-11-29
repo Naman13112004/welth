@@ -3,8 +3,8 @@ import { headers } from "next/headers";
 import { defaultCategories } from "../../../../../data/categories";
 import AddTransactionForm from "@/components/transactions/transaction-form";
 
-const AddTransactionPage = async ({ searchParams }: { searchParams: { edit: string } }) => {
-    const editId = searchParams?.edit;
+const AddTransactionPage = async ({ searchParams }: { searchParams: Promise<{ edit?: string }> }) => {
+    const editId = (await searchParams)?.edit;
     const authHeaders = await headers();
 
     let initialData = null;

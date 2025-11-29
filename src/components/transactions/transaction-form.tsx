@@ -165,7 +165,7 @@ const AddTransactionForm = ({ accounts, categories, editMode, initialData }: Add
             reset();
             router.push(`/account/${transactionResult?.transaction?.accountId}`);
         }
-    }, [transactionResult, transactionLoading, editMode]);
+    }, [transactionResult, transactionLoading, editMode, reset, router]);
 
     const handleScanComplete = (scannedData: ScannedData) => {
         if (scannedData) {
