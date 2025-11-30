@@ -4,8 +4,10 @@ import CreateAccountDrawer from "@/components/accounts/create-account-drawer";
 
 import { Plus } from "lucide-react";
 import { headers } from "next/headers";
-import type { Account, Budget } from "@/generated/prisma";
+import type { Account, Budget, Transaction } from "@/generated/prisma";
 import BudgetProgress from "@/components/budget/budget-progress";
+import { Suspense } from "react";
+import DashboardOverview from "@/components/dashboard-overview";
 
 const DashboardPage = async () => {
   const authHeaders = await headers();
@@ -40,6 +42,19 @@ const DashboardPage = async () => {
     budgetData = await budgetRes.json();
   }
 
+  const transactionRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/dashboard`, {
+    method: "GET",
+    headers: {
+      cookie: (authHeaders).get("cookie") ?? "",
+    },
+  });
+
+  if (!transactionRes.ok) {
+    throw new Error("Failed to fetch transactions");
+  }
+
+  const { transactions }: { transactions: Transaction[] } = await transactionRes.json();
+
   return (
     <div className="space-y-8">
       {/* Budget Progress */}
@@ -51,6 +66,12 @@ const DashboardPage = async () => {
       )}
 
       {/* Overview */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <DashboardOverview
+          accounts={accounts}
+          transactions={transactions || []}
+        />
+      </Suspense>
 
       {/* Accounts Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
