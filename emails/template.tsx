@@ -9,15 +9,35 @@ import {
     Text,
 } from "@react-email/components";
 
-export default function EmailTemplate({
-    userName = "",
-    type = "budget-alert",
-    data = {},
-}: {
+interface BudgetAlertData {
+    budgetAmount: number;
+    percentageUsed: number;
+    totalExpenses: number;
+}
+
+interface MonthlyReportData {
+    month: string;
+    stats: {
+        totalIncome: number;
+        totalExpenses: number;
+        byCategory?: Record<string, number>;
+    };
+    insights: string[];
+}
+
+type EmailTemplateProps = {
     userName: string | null;
-    type: "budget-alert" | "monthly-report";
-    data: any;
-}) {
+    type: "monthly-report";
+    data: MonthlyReportData;
+} | {
+    userName: string | null;
+    type: "budget-alert";
+    data: BudgetAlertData;
+};
+
+export default function EmailTemplate(props: EmailTemplateProps) {
+    const { userName, type, data } = props;
+
     if (type === "monthly-report") {
         return (
             <Html>
@@ -135,7 +155,7 @@ export default function EmailTemplate({
                     <Text style={styles.text}>Hello {userName},</Text>
 
                     <Text style={styles.text}>
-                        You've used {(data?.percentageUsed ?? 0).toFixed(1)}% of
+                        You&apos;ve used {(data?.percentageUsed ?? 0).toFixed(1)}% of
                         your monthly budget.
                     </Text>
 

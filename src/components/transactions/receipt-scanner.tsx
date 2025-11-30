@@ -39,7 +39,6 @@ const ReceiptScanner = ({ onScanComplete }: ReceiptScannerProps) => {
         loading: scanReceiptLoading,
         fn: scanReceiptFn,
         data: scannedData,
-        error,
     } = useFetch((file: File) => scanReceipt(file));
 
     const handleReceiptScan = async (file: File) => {

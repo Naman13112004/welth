@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { serializeAccount } from "@/lib/utils";
 import aj from "@/lib/arcjet";
+import { Transaction } from "@/generated/prisma";
 
 export async function GET(req: Request) {
     try {
@@ -221,7 +222,7 @@ function calculateNextRecurringDate(startDate: Date, recurringInterval: string) 
     return date;
 }
 
-const serializeAmount = (obj: any) => ({
+const serializeAmount = (obj: Transaction) => ({
     ...obj,
     amount: Number(obj.amount),
 });
