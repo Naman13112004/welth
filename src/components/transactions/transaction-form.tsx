@@ -102,6 +102,7 @@ const AddTransactionForm = ({ accounts, categories, editMode, initialData }: Add
             method: "POST",
             body: JSON.stringify({
                 ...formData,
+                amount: Number(formData.amount),
                 recurringInterval: isRecurring ? recurringInterval : null,
             }),
         });
@@ -121,6 +122,7 @@ const AddTransactionForm = ({ accounts, categories, editMode, initialData }: Add
             method: "PUT",
             body: JSON.stringify({
                 ...formData,
+                amount: Number(formData.amount),
                 recurringInterval: isRecurring ? recurringInterval : null,
                 transactionId: editId,
             }),
@@ -136,23 +138,21 @@ const AddTransactionForm = ({ accounts, categories, editMode, initialData }: Add
         return res.json();
     }
 
+    const unifiedFn = async (formData: z.infer<typeof transactionSchema>) => {
+        if (editMode && editId) {
+            return updateTransaction(formData, editId);
+        }
+        return createTransaction(formData);
+    };
+
     const {
         loading: transactionLoading,
         fn: transactionFn,
         data: transactionResult,
-    } = useFetch(editMode ? updateTransaction : createTransaction);
+    } = useFetch(unifiedFn);
 
     const onSubmit = async (data: z.infer<typeof transactionSchema>) => {
-        const formData = {
-            ...data,
-            amount: Number(data.amount),
-        }
-        if (editMode) {
-            await transactionFn(formData, editId);
-
-        } else {
-            await transactionFn(formData);
-        }
+        await transactionFn(data);
     }
 
     useEffect(() => {

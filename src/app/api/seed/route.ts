@@ -30,7 +30,7 @@ const CATEGORIES = {
 };
 
 // Helper to generate random amount within a range
-function getRandomAmount(min: any, max: any) {
+function getRandomAmount(min: number, max: number) {
   return Number((Math.random() * (max - min) + min).toFixed(2));
 }
 
@@ -42,10 +42,26 @@ function getRandomCategory(type: "INCOME" | "EXPENSE") {
   return { category: category.name, amount };
 }
 
+
+// Define transaction type used for seeding
+interface SeedTransaction {
+  id: string;
+  type: "INCOME" | "EXPENSE";
+  amount: number;
+  description: string;
+  date: Date;
+  category: string;
+  status: "COMPLETED";
+  userId: string;
+  accountId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export async function POST() {
   try {
     // Generate 90 days of transactions
-    const transactions: any = [];
+    const transactions: SeedTransaction[] = [];
     let totalBalance = 0;
 
     for (let i = 90; i >= 0; i--) {
@@ -61,14 +77,13 @@ export async function POST() {
 
         const transaction = {
           id: crypto.randomUUID(),
-          type,
+          type: type as SeedTransaction['type'],
           amount,
-          description: `${
-            type === "INCOME" ? "Received" : "Paid for"
-          } ${category}`,
+          description: `${type === "INCOME" ? "Received" : "Paid for"
+            } ${category}`,
           date,
           category,
-          status: "COMPLETED",
+          status: "COMPLETED" as SeedTransaction['status'],
           userId: USER_ID,
           accountId: ACCOUNT_ID,
           createdAt: date,

@@ -7,7 +7,6 @@ import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import {
     BarChart,
     Bar,
-    Rectangle,
     XAxis,
     YAxis,
     CartesianGrid,

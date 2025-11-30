@@ -1,11 +1,11 @@
 "use client";
 
-import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
@@ -17,8 +17,8 @@ import useFetch from "@/hooks/use-fetch";
 import { useRouter } from "next/navigation";
 import type { Account } from "@/generated/prisma";
 
-const AccountCard = ({ account }: {account: Account}) => {
-  const { name, type, balance, id, isDefault } = account;
+const AccountCard = ({ account }: { account: Account }) => {
+  const { type, balance, id, isDefault } = account;
   const router = useRouter();
 
   async function updateDefaultAccount(accountId: string) {
@@ -47,7 +47,7 @@ const AccountCard = ({ account }: {account: Account}) => {
   const handleDefaultChange = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    if(isDefault) {
+    if (isDefault) {
       toast.warning("You need atleast 1 default account");
       return; // Make sure the default account is not toggled to false
     }
@@ -56,30 +56,30 @@ const AccountCard = ({ account }: {account: Account}) => {
   };
 
   useEffect(() => {
-    if(updatedAccount?.success) {
+    if (updatedAccount?.success) {
       toast.success("Default account updated successfully");
     }
   }, [updatedAccount, updateDefaultLoading]);
 
   useEffect(() => {
-    if(error) {
+    if (error) {
       toast.error((error as Error).message || "Failed to update default account");
     }
   }, [error]);
 
   return (
     <Card className="hover:shadow-md transition-shadow group relative">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <Link href={`/account/${id}`}>
-            <CardTitle className="text-sm font-medium capitalize">{account.name}</CardTitle>
-          </Link>
-          <Switch 
-            checked={isDefault} 
-            onClick={handleDefaultChange}
-            disabled={updateDefaultLoading}
-            className="cursor-pointer"
-          />
-        </CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Link href={`/account/${id}`}>
+          <CardTitle className="text-sm font-medium capitalize">{account.name}</CardTitle>
+        </Link>
+        <Switch
+          checked={isDefault}
+          onClick={handleDefaultChange}
+          disabled={updateDefaultLoading}
+          className="cursor-pointer"
+        />
+      </CardHeader>
       <Link href={`/account/${id}`}>
         <CardContent className="pb-4">
           <div className="text-2xl font-bold">

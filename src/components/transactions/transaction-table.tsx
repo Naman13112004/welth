@@ -143,7 +143,7 @@ const TransactionTable = ({ transactions }: { transactions: Transaction[] }) => 
         return result;
     }, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
 
-    const handleSort = (field: any) => {
+    const handleSort = (field: string) => {
         setSortConfig((current) => ({
             field,
             direction:
